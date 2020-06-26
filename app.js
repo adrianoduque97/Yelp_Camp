@@ -32,6 +32,7 @@ app.get("/campgrounds/new", (req,res)=>{
 
 })
 
+//Post route
 app.post("/campgrounds",(req,res)=>{
     const name =req.body.name
     const image = req.body.image
