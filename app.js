@@ -3,7 +3,7 @@ const mongoose = require('mongoose')
 const app = express()
 const bodyParser = require('body-parser')
 const Campground = require("./models/campground")
-//const Comment = require("./models/comment")
+const Comment = require("./models/comment")
 const seed = require('./seeds')
 
 //seed();
@@ -21,15 +21,14 @@ app.get("/campgrounds", (req,res)=>{
 
     Campground.find()
                 .then((camp)=>{
-                    res.render('index',{campgrounds: camp})
+                    res.render('campgrounds/index',{campgrounds: camp})
                 })
                 .catch(err => console.log(err))
-
-})
+}) 
 
 app.get("/campgrounds/new", (req,res)=>{
 
-    res.render('new')
+    res.render('campgrounds/new')
 
 })
 
@@ -51,12 +50,33 @@ app.post("/campgrounds",(req,res)=>{
 
 app.get("/campgrounds/:id",(req,res)=>{
     Campground.findById(req.params.id).populate("comments").exec()
-            .then(camp => res.render("show",{campground: camp}))
-            .catch(err=>console.log(err))   
-    
+            .then(camp => res.render("campgrounds/show",{campground: camp}))
+            .catch(err=>console.log(err))       
    // Campground.find()
-
 })
+
+app.get("/campgrounds/:id/comments/new", (req,res)=>{
+    Campground.findById(req.params.id).then((camp)=>{
+        res.render("comments/new",{campground: camp})
+    }).catch(err => console.log(err))
+    
+})
+
+app.post("/campgrounds/:id/comments/", (req,res)=>{
+    Campground.findById(req.params.id).then((camp)=>{
+        Comment.create(req.body.comment).then((comment)=>{
+            camp.comments.push(comment);
+            camp.save().then(camp => console.log(`Created Comment ${camp}`)).catch(err=>console.log(err))
+            //redirect
+            res.redirect(`/campgrounds/${camp._id}`)
+
+        }).catch(err=> console.log(err))
+        
+        
+    }).catch(err => console.log(err))
+    
+})
+
 
 
 app.listen(3000,()=>console.log("YelpCamp Server Started"))
