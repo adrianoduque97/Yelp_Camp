@@ -15,6 +15,7 @@ app.use(bodyParser.urlencoded({extended: true}))
 app.set('view engine','ejs')
 app.use(express.static(__dirname+"/public"))
 
+
 //Passport
 app.use(require("express-session")({
     secret: "Adrian Test",
@@ -26,6 +27,10 @@ app.use(passport.session())
 passport.use(new LocalStrategy(User.authenticate()))
 passport.serializeUser(User.serializeUser());
 passport.deserializeUser(User.deserializeUser());
+app.use((req,res,next)=>{
+    res.locals.currentUser = req.user;
+    next();
+});
 
 
 
@@ -34,7 +39,6 @@ app.get("/", (req,res)=>{
 })
 
 app.get("/campgrounds", (req,res)=>{
-
     Campground.find()
                 .then((camp)=>{
                     res.render('campgrounds/index',{campgrounds: camp})
@@ -72,14 +76,14 @@ app.get("/campgrounds/:id",(req,res)=>{
    // Campground.find()
 })
 
-app.get("/campgrounds/:id/comments/new", (req,res)=>{
+app.get("/campgrounds/:id/comments/new", isLoggedIn,(req,res)=>{
     Campground.findById(req.params.id).then((camp)=>{
         res.render("comments/new",{campground: camp})
     }).catch(err => console.log(err))
     
 })
 
-app.post("/campgrounds/:id/comments/", (req,res)=>{
+app.post("/campgrounds/:id/comments/", isLoggedIn ,(req,res)=>{
     Campground.findById(req.params.id).then((camp)=>{
         Comment.create(req.body.comment).then((comment)=>{
             camp.comments.push(comment);
@@ -122,6 +126,24 @@ app.post("/login", passport.authenticate("local",{
     failureRedirect:"/login",
 }),(req,res)=>{
 })
+
+// LOGOUT
+
+app.get("/logout", (req,res)=>{
+    req.logout()
+    res.redirect("/campgrounds")
+
+})
+
+
+// Middleware to check if user is logged in
+function isLoggedIn(req,res,next){
+    if(req.isAuthenticated()){
+        return next()
+    }else{
+        res.redirect("/login")
+    }
+}
 
 
 
