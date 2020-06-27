@@ -2,6 +2,9 @@ const express = require('express')
 const mongoose = require('mongoose')
 const app = express()
 const bodyParser = require('body-parser')
+const passport = require('passport')
+const LocalStrategy = require('passport-local')
+const User = require ("./models/user")
 const Campground = require("./models/campground")
 const Comment = require("./models/comment")
 const seed = require('./seeds')
@@ -11,6 +14,18 @@ mongoose.connect("mongodb://localhost/yelp_camp",{ useNewUrlParser: true, useUni
 app.use(bodyParser.urlencoded({extended: true}))
 app.set('view engine','ejs')
 app.use(express.static(__dirname+"/public"))
+
+//Passport
+app.use(require("express-session")({
+    secret: "Adrian Test",
+    resave: false,
+    saveUninitialized: false
+}));
+app.use(passport.initialize())
+app.use(passport.session())
+passport.use(new LocalStrategy(User.authenticate()))
+passport.serializeUser(User.serializeUser());
+passport.deserializeUser(User.deserializeUser());
 
 
 
@@ -78,6 +93,38 @@ app.post("/campgrounds/:id/comments/", (req,res)=>{
     }).catch(err => console.log(err))
     
 })
+
+
+// AUTH ROUTES
+
+app.get("/register",(req,res)=>{
+    res.render("register")
+})
+app.post("/register",(req,res)=>{
+    User.register(new User({username: req.body.username}),req.body.password)
+    .then((user)=>{
+        console.log(user)
+        passport.authenticate("local")(req,res,()=>{
+            res.redirect("/campgrounds") 
+        })
+      
+    })
+    .catch(err => console.log(err))
+})
+
+//LOGIN
+app.get("/login",(req,res)=>{
+    res.render("login")
+})
+
+app.post("/login", passport.authenticate("local",{
+    successRedirect: "/campgrounds",
+    failureRedirect:"/login",
+}),(req,res)=>{
+})
+
+
+
 
 
 
