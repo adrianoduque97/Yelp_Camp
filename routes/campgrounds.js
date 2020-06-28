@@ -46,10 +46,59 @@ router.get("/:id",(req,res)=>{
             .catch(err=>console.log(err))       
 })
 
+// EDIT 
+router.get("/:id/edit",checkCampOwner,(req,res)=>{
+    Campground.findById(req.params.id).then((foundCamp)=>{
+        res.render("campgrounds/edit", {campground : foundCamp})
+    }).catch(err => console.log(err))
+    
+})
+
+// UPDATE
+router.put("/:id",checkCampOwner,(req,res)=>{
+
+    Campground.findById(req.params.id).then((foundCamp)=>{
+        foundCamp.updateOne(req.body.camp).then((camp)=>{
+            res.redirect(`/campgrounds/${req.params.id}`)
+        }).catch((err)=>{
+            console.log(err)
+            res.redirect("/campgrounds")
+        })
+    }).catch(err => console.log(err))
+    
+})
+
+// Delete Camp
+router.delete("/:id",checkCampOwner,(req,res)=>{
+    Campground.findById(req.params.id).then((foundCamp)=>{
+        foundCamp.deleteOne().then(()=>{
+            res.redirect("/campgrounds")
+        }).catch((err)=>{
+            console.log(err)
+            res.redirect(`/campgrounds/${req.param.id}`)
+        })
+    }).catch(err=> console.log(err))
+})
 // Middleware to check if user is logged in
 function isLoggedIn(req,res,next){
     if(req.isAuthenticated()){
         return next()
+    }else{
+        res.redirect("/login")
+    }
+}
+
+//middleware for check the user is connceted 
+function checkCampOwner(req,res,next){
+    if(req.isAuthenticated()){
+        Campground.findById(req.params.id).then((camp)=>{
+            if(camp.author.id.equals(req.user._id)){
+                next()
+            }else{
+                res.redirect(`back`)
+            }
+        }).catch(err => console.log(err))
+
     }else{
         res.redirect("/login")
     }

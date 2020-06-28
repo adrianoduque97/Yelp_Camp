@@ -8,6 +8,7 @@ const User = require ("./models/user")
 const Campground = require("./models/campground")
 const Comment = require("./models/comment")
 const seed = require('./seeds')
+const methodOverride = require('method-override')
 
 //Routes
 const commentRoutes = require("./routes/comments")
@@ -19,6 +20,7 @@ mongoose.connect("mongodb://localhost/yelp_camp",{ useNewUrlParser: true, useUni
 app.use(bodyParser.urlencoded({extended: true}))
 app.set('view engine','ejs')
 app.use(express.static(__dirname+"/public"))
+app.use(methodOverride("_method"))
 
 
 //Passport
@@ -40,5 +42,6 @@ app.use((req,res,next)=>{
 app.use("/campgrounds/:id/comments",commentRoutes)
 app.use("/campgrounds",campgroundRoutes)
 app.use("/",authRoutes)
+
 
 app.listen(3000,()=>console.log("YelpCamp Server Started"))
