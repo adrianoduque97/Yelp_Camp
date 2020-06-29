@@ -1,6 +1,6 @@
 <%- include("../partials/header") %>
 
-<div class="container">
+<div class="">
 
     <div class="row">
         <div class="col-md-3">
@@ -16,7 +16,7 @@
             <div class="thumbnail">
                 <img class="img-responsive"src="<%= campground.image %>">
                 <div class="caption-full">
-                    <h4 class="pull-right">$10.00 per/night</h4>
+                    <h4 class="pull-right"><%= campground.price %>$ per nigth </h4>
                     <h4><a href=""> <%= campground.name %> </a></h4>
                     <p><%= campground.description %> </p>
                     <p><em>Submitted by: <%= campground.author.username %></em>  </p>

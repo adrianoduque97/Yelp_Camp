@@ -24,6 +24,7 @@ router.post("/",middlewareObj.isLoggedIn,(req,res)=>{
     const name =req.body.name
     const image = req.body.image
     const descr = req.body.description
+    const price = req.body.price
     const author = {
         id: req.user._id,
         username: req.user.username
@@ -32,7 +33,8 @@ router.post("/",middlewareObj.isLoggedIn,(req,res)=>{
         name:name,
         image:image,
         description:descr,
-        author: author
+        author: author,
+        price: price
     })
     camp.save()
         .then(camp=> console.log(`New Campgroun added ${camp}`))
@@ -60,6 +62,7 @@ router.put("/:id",middlewareObj.checkCampOwner,(req,res)=>{
 
     Campground.findById(req.params.id).then((foundCamp)=>{
         foundCamp.updateOne(req.body.camp).then((camp)=>{
+            req.flash("success","Camp Updated")
             res.redirect(`/campgrounds/${req.params.id}`)
         }).catch((err)=>{
             console.log(err)
@@ -73,9 +76,9 @@ router.put("/:id",middlewareObj.checkCampOwner,(req,res)=>{
 router.delete("/:id",middlewareObj.checkCampOwner,(req,res)=>{
     Campground.findById(req.params.id).then((foundCamp)=>{
         foundCamp.deleteOne().then(()=>{
+            req.flash("success","Camp Deleted")
             res.redirect("/campgrounds")
         }).catch((err)=>{
-            console.log(err)
             res.redirect(`/campgrounds/${req.param.id}`)
         })
     }).catch(err=> console.log(err))

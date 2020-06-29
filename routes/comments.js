@@ -24,6 +24,7 @@ router.post("/", middlewareObj.isLoggedIn ,(req,res)=>{
             camp.comments.push(comment);
             camp.save().then(camp => console.log(`Created Comment ${camp}`)).catch(err=>console.log(err))
             //redirect
+            req.flash("success","Added Comment")
             res.redirect(`/campgrounds/${camp._id}`)
 
         }).catch(err=> console.log(err))
@@ -44,6 +45,7 @@ router.get("/:comment_id/edit",middlewareObj.checkCommentOwner,(req,res)=>{
 router.put("/:comment_id",middlewareObj.checkCommentOwner,(req,res)=>{
     Comment.findById(req.params.comment_id).then((comment)=>{
         comment.updateOne(req.body.comment).then(()=>{
+            req.flash("success","Comment updated")
             res.redirect(`/campgrounds/${req.params.id}`)
         }).catch(err => console.log(err))
     }).catch(err => console.log(err))
@@ -54,9 +56,9 @@ router.put("/:comment_id",middlewareObj.checkCommentOwner,(req,res)=>{
 router.delete("/:comment_id",middlewareObj.checkCommentOwner,(req,res)=>{
     Comment.findById(req.params.comment_id).then((foundComment)=>{
         foundComment.deleteOne().then(()=>{
+            req.flash("success","Comment deleted")
             res.redirect(`back`)
         }).catch((err)=>{
-            console.log(err)
             res.redirect(`/campgrounds/${req.params.id}`)
         })
     }).catch(err=> console.log(err))

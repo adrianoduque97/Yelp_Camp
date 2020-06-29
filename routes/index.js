@@ -18,11 +18,15 @@ router.post("/register",(req,res)=>{
     .then((user)=>{
         console.log(user)
         passport.authenticate("local")(req,res,()=>{
+            req.flash("success",`User registered, Welcome ${req.body.username}` )
             res.redirect("/campgrounds") 
         })
       
     })
-    .catch(err => console.log(err))
+    .catch((err)=>{
+        req.flash("error",err.message)
+        res.redirect("/login")
+    })
 })
 
 //LOGIN
@@ -40,18 +44,11 @@ router.post("/login", passport.authenticate("local",{
 
 router.get("/logout", (req,res)=>{
     req.logout()
+    req.flash("success","Loged you out")
     res.redirect("/campgrounds")
 
 })
 
-// Middleware to check if user is logged in
-function isLoggedIn(req,res,next){
-    if(req.isAuthenticated()){
-        return next()
-    }else{
-        res.redirect("/login")
-    }
-}
 
 
 module.exports = router;
