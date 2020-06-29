@@ -1,6 +1,7 @@
 var express = require('express')
 const router = express.Router({mergeParams: true})
 const Campground = require("../models/campground")
+const middlewareObj = require("../middleware")
 
 // Get all campgrounds
 router.get("/", (req,res)=>{
@@ -12,17 +13,18 @@ router.get("/", (req,res)=>{
 }) 
 
 //new Campground
-router.get("/new",isLoggedIn ,(req,res)=>{
+router.get("/new",middlewareObj.isLoggedIn ,(req,res)=>{
 
     res.render('campgrounds/new')
 
 })
 
 //Create Campground
-router.post("/",isLoggedIn,(req,res)=>{
+router.post("/",middlewareObj.isLoggedIn,(req,res)=>{
     const name =req.body.name
     const image = req.body.image
     const descr = req.body.description
+    const price = req.body.price
     const author = {
         id: req.user._id,
         username: req.user.username
@@ -31,7 +33,8 @@ router.post("/",isLoggedIn,(req,res)=>{
         name:name,
         image:image,
         description:descr,
-        author: author
+        author: author,
+        price: price
     })
     camp.save()
         .then(camp=> console.log(`New Campgroun added ${camp}`))
@@ -46,13 +49,39 @@ router.get("/:id",(req,res)=>{
             .catch(err=>console.log(err))       
 })
 
-// Middleware to check if user is logged in
-function isLoggedIn(req,res,next){
-    if(req.isAuthenticated()){
-        return next()
-    }else{
-        res.redirect("/login")
-    }
-}
+// EDIT 
+router.get("/:id/edit",middlewareObj.checkCampOwner,(req,res)=>{
+    Campground.findById(req.params.id).then((foundCamp)=>{
+        res.render("campgrounds/edit", {campground : foundCamp})
+    }).catch(err => console.log(err))
+    
+})
+
+// UPDATE
+router.put("/:id",middlewareObj.checkCampOwner,(req,res)=>{
+
+    Campground.findById(req.params.id).then((foundCamp)=>{
+        foundCamp.updateOne(req.body.camp).then((camp)=>{
+            req.flash("success","Camp Updated")
+            res.redirect(`/campgrounds/${req.params.id}`)
+        }).catch((err)=>{
+            console.log(err)
+            res.redirect("/campgrounds")
+        })
+    }).catch(err => console.log(err))
+    
+})
+
+// Delete Camp
+router.delete("/:id",middlewareObj.checkCampOwner,(req,res)=>{
+    Campground.findById(req.params.id).then((foundCamp)=>{
+        foundCamp.deleteOne().then(()=>{
+            req.flash("success","Camp Deleted")
+            res.redirect("/campgrounds")
+        }).catch((err)=>{
+            res.redirect(`/campgrounds/${req.param.id}`)
+        })
+    }).catch(err=> console.log(err))
+})
 
 module.exports = router;
