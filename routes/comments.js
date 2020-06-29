@@ -2,9 +2,10 @@ var express = require('express')
 const router = express.Router({mergeParams: true})
 const Campground = require("../models/campground")
 const Comment = require("../models/comment")
+const middlewareObj = require("../middleware")
 
 //Comments new
-router.get("/new", isLoggedIn,(req,res)=>{
+router.get("/new", middlewareObj.isLoggedIn,(req,res)=>{
     Campground.findById(req.params.id).then((camp)=>{
         res.render("comments/new",{campground: camp})
     }).catch(err => console.log(err))
@@ -12,7 +13,7 @@ router.get("/new", isLoggedIn,(req,res)=>{
 })
 
 // Comments save
-router.post("/", isLoggedIn ,(req,res)=>{
+router.post("/", middlewareObj.isLoggedIn ,(req,res)=>{
     Campground.findById(req.params.id).then((camp)=>{
         Comment.create(req.body.comment).then((comment)=>{
             //add username to the comment
@@ -32,14 +33,33 @@ router.post("/", isLoggedIn ,(req,res)=>{
     
 })
 
+//edit Comment
+router.get("/:comment_id/edit",middlewareObj.checkCommentOwner,(req,res)=>{
+    Comment.findById(req.params.comment_id).then((comment)=>{
+        res.render("comments/edit",{campground_id: req.params.id , comment: comment})
+    }).catch(err => console.log(err))
+    
+})
+// update route
+router.put("/:comment_id",middlewareObj.checkCommentOwner,(req,res)=>{
+    Comment.findById(req.params.comment_id).then((comment)=>{
+        comment.updateOne(req.body.comment).then(()=>{
+            res.redirect(`/campgrounds/${req.params.id}`)
+        }).catch(err => console.log(err))
+    }).catch(err => console.log(err))
+    
+})
 
-// middleware
-function isLoggedIn(req,res,next){
-    if(req.isAuthenticated()){
-        return next()
-    }else{
-        res.redirect("/login")
-    }
-}
+//delete comment
+router.delete("/:comment_id",middlewareObj.checkCommentOwner,(req,res)=>{
+    Comment.findById(req.params.comment_id).then((foundComment)=>{
+        foundComment.deleteOne().then(()=>{
+            res.redirect(`back`)
+        }).catch((err)=>{
+            console.log(err)
+            res.redirect(`/campgrounds/${req.params.id}`)
+        })
+    }).catch(err=> console.log(err))
+})
 
 module.exports = router;

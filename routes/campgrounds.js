@@ -1,6 +1,7 @@
 var express = require('express')
 const router = express.Router({mergeParams: true})
 const Campground = require("../models/campground")
+const middlewareObj = require("../middleware")
 
 // Get all campgrounds
 router.get("/", (req,res)=>{
@@ -12,14 +13,14 @@ router.get("/", (req,res)=>{
 }) 
 
 //new Campground
-router.get("/new",isLoggedIn ,(req,res)=>{
+router.get("/new",middlewareObj.isLoggedIn ,(req,res)=>{
 
     res.render('campgrounds/new')
 
 })
 
 //Create Campground
-router.post("/",isLoggedIn,(req,res)=>{
+router.post("/",middlewareObj.isLoggedIn,(req,res)=>{
     const name =req.body.name
     const image = req.body.image
     const descr = req.body.description
@@ -47,7 +48,7 @@ router.get("/:id",(req,res)=>{
 })
 
 // EDIT 
-router.get("/:id/edit",checkCampOwner,(req,res)=>{
+router.get("/:id/edit",middlewareObj.checkCampOwner,(req,res)=>{
     Campground.findById(req.params.id).then((foundCamp)=>{
         res.render("campgrounds/edit", {campground : foundCamp})
     }).catch(err => console.log(err))
@@ -55,7 +56,7 @@ router.get("/:id/edit",checkCampOwner,(req,res)=>{
 })
 
 // UPDATE
-router.put("/:id",checkCampOwner,(req,res)=>{
+router.put("/:id",middlewareObj.checkCampOwner,(req,res)=>{
 
     Campground.findById(req.params.id).then((foundCamp)=>{
         foundCamp.updateOne(req.body.camp).then((camp)=>{
@@ -69,7 +70,7 @@ router.put("/:id",checkCampOwner,(req,res)=>{
 })
 
 // Delete Camp
-router.delete("/:id",checkCampOwner,(req,res)=>{
+router.delete("/:id",middlewareObj.checkCampOwner,(req,res)=>{
     Campground.findById(req.params.id).then((foundCamp)=>{
         foundCamp.deleteOne().then(()=>{
             res.redirect("/campgrounds")
@@ -79,29 +80,5 @@ router.delete("/:id",checkCampOwner,(req,res)=>{
         })
     }).catch(err=> console.log(err))
 })
-// Middleware to check if user is logged in
-function isLoggedIn(req,res,next){
-    if(req.isAuthenticated()){
-        return next()
-    }else{
-        res.redirect("/login")
-    }
-}
-
-//middleware for check the user is connceted 
-function checkCampOwner(req,res,next){
-    if(req.isAuthenticated()){
-        Campground.findById(req.params.id).then((camp)=>{
-            if(camp.author.id.equals(req.user._id)){
-                next()
-            }else{
-                res.redirect(`back`)
-            }
-        }).catch(err => console.log(err))
-
-    }else{
-        res.redirect("/login")
-    }
-}
 
 module.exports = router;
