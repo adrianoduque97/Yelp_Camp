@@ -13,3 +13,18 @@
 .delete_form{
     display: inline;
 }
+.jumbotron {
+    background-image: url("https://cdn.shopify.com/s/files/1/0003/1916/0381/articles/Fogata-en-la-playa_676122e1-2935-4f33-a00c-7a88cc5ca1b8.png?v=1575335342");
+    background-color: rgba(0,0, 0, 0.5);
+    /* opacity: 0.5; */
+    margin-bottom: 0;
+    min-height: 50%;
+    background-repeat: no-repeat;
+    background-position: center;
+    -webkit-background-size: cover;
+    background-size: cover;
+}
+
+.jumbotron .container{
+    background-color: transparent;
+}
