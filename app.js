@@ -17,7 +17,8 @@ const campgroundRoutes= require("./routes/campgrounds")
 const authRoutes = require("./routes/index")
 
 //seed();
-mongoose.connect("mongodb://localhost/yelp_camp",{ useNewUrlParser: true, useUnifiedTopology: true })
+mongoose.connect("mongodb://heroku_24ncwbd2:kbf428qislqrpvfmk55qqgfi24@ds249757.mlab.com:49757/heroku_24ncwbd2",{ useNewUrlParser: true, useUnifiedTopology: true })//"mongodb://localhost/yelp_camp",{ useNewUrlParser: true, useUnifiedTopology: true })
+
 app.use(bodyParser.urlencoded({extended: true}))
 app.set('view engine','ejs')
 app.use(express.static(__dirname+"/public"))
