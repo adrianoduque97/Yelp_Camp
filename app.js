@@ -10,6 +10,7 @@ const Comment = require("./models/comment")
 const seed = require('./seeds')
 const methodOverride = require('method-override')
 const flash = require('connect-flash')
+require('dotenv').config()
 
 //Routes
 const commentRoutes = require("./routes/comments")
@@ -17,8 +18,8 @@ const campgroundRoutes= require("./routes/campgrounds")
 const authRoutes = require("./routes/index")
 
 //seed();
-mongoose.connect("mongodb://heroku_24ncwbd2:kbf428qislqrpvfmk55qqgfi24@ds249757.mlab.com:49757/heroku_24ncwbd2",{ useNewUrlParser: true, useUnifiedTopology: true })//"mongodb://localhost/yelp_camp",{ useNewUrlParser: true, useUnifiedTopology: true })
-
+mongoose.connect( process.env.MONGODB_URI,{ useNewUrlParser: true, useUnifiedTopology: true })//"mongodb://localhost/yelp_camp",{ useNewUrlParser: true, useUnifiedTopology: true })
+//"mongodb://heroku_24ncwbd2:kbf428qislqrpvfmk55qqgfi24@ds249757.mlab.com:49757/heroku_24ncwbd2",
 app.use(bodyParser.urlencoded({extended: true}))
 app.set('view engine','ejs')
 app.use(express.static(__dirname+"/public"))
