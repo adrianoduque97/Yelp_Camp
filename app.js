@@ -49,4 +49,4 @@ app.use("/campgrounds",campgroundRoutes)
 app.use("/",authRoutes)
 
 
-app.listen(3000,()=>console.log("YelpCamp Server Started"))
+app.listen(process.env.PORT,()=>console.log("YelpCamp Server Started"))
