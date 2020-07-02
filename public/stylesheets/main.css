@@ -28,3 +28,6 @@
 .jumbotron .container{
     background-color: transparent;
 }
+.hovStuyle:hover{
+transform: scale(1.05);
+}
